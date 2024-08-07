@@ -1,1 +1,1 @@
-gunicorn --bind 0.0.0.0:$PORT OpnLend.wsgi
+gunicorn OpnLend.wsgi:application --bind 0.0.0.0:$PORT
