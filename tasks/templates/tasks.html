@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tasks</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; }
+        .task-counter { text-align: right; }
+        .search-sort { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .task-table { width: 100%; border-collapse: collapse; }
+        .task-table th, .task-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        .task-table th { background-color: #007BFF; color: white; }
+        button { padding: 5px 10px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .logout-button { 
+            padding: 5px 10px; 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-left: 82%;
+        }
+        .logout-button:hover { 
+            background-color: #c82333; 
+        }
+    </style>
+    <script>
+        function applyFilter() {
+            var searchQuery = document.getElementById('search').value;
+            var sortBy = document.getElementById('sort_by').value;
+            var url = new URL(window.location.href);
+            url.searchParams.set('search', searchQuery);
+            url.searchParams.set('sort_by', sortBy);
+            window.location.href = url.href;
+        }
+
+        function sendReminder(taskId) {
+            fetch('/tasks/send_reminder/', {
+                method: 'POST',
+                headers: {
+                                        'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ 'task_id': taskId })
+                    })
+                    .then(response => response.json())
+                    .then(data => alert(data.message))
+                    .catch(error => console.error('Error:', error));
+                    }
+                    </script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>My Tasks</h1>
+        <a href="{% url 'add_task' %}">Add Task</a>
+        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+        <div class="task-counter">
+            <p>Total Tasks: {{ task_count }}</p>
+        </div>
+        <div class="search-sort">
+            <form onsubmit="applyFilter(); return false;">
+                <label for="search">Search by Title:</label>
+                <input type="text" id="search" name="search" value="{{ request.GET.search }}">
+                <label for="sort_by">Sort by:</label>
+                <select id="sort_by" name="sort_by">
+                    <option value="due_date" {% if request.GET.sort_by == 'due_date' %}selected{% endif %}>Due Date</option>
+                    <option value="title" {% if request.GET.sort_by == 'title' %}selected{% endif %}>Title</option>
+                </select>
+                <button type="submit">Apply</button>
+            </form>
+        </div>
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Due Date</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.category }}</td>
+                    <td><button onclick="sendReminder({{ task.id }})">Send Reminder</button></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No tasks for you. Please add one.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
