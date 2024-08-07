@@ -25,7 +25,7 @@ SECRET_KEY = '8+a47sv$pndyt=oke6tljb-1t*ajs6p=lo6r93@!*l(oi8!t5w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['mytask-afnj.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
